@@ -1,52 +1,39 @@
 var mysql = require('mysql2/promise');
 
-// COnexão com o banco de dados
+// Conexão com o banco de dados
 async function connect() {
     if (global.connection && global.connection.state !== 'disconnected')
         return global.connection;
 
     const con = await mysql.createConnection({
         host: 'localhost',
-        port: 3306,
+        // port: 3306,
         user: 'root',
-        password: '',
-        database: 'crud'
+        password: 'Morgana',
+        database: 'facul'
     });
 
     console.log("Conectado!")
-    global.connection = connection;
+    global.connection = con;
     return global.connection;
 };
 
 // SELECT
-async function selectCustomers() {
+async function selectEspecifico() {
     const conn = await connect();
-    const [rows] = await conn.query('SELECT * FROM clientes');
+    const [rows] = await conn.query(
+        'SELECT aluno.nome as nome_aluno, ' +
+        'curso.nome as nome_curso, ' +
+        'disciplina.nome as nome_disciplina, ' +
+        'matricula.id as id_matricula ' +
+        'FROM aluno ' +
+        'INNER JOIN matricula ON aluno.id = matricula.aluno_id ' +
+        'INNER JOIN disciplina ON disciplina.id = matricula.disciplina_id ' +
+        'INNER JOIN curso ON curso.id = disciplina.curso_id ' +
+        'ORDER BY aluno.nome; '
+    );
     return rows;
 };
 
-// INSERT
-async function InsertCustomers() {
-    const conn = await connect();
-    const sql = 'INSERT INTO clientes(nome, idade, uf) VALUES (?, ?, ?);';
-    const values = [customer.nome, customer.idade, customer.uf];
-    return await conn.query(sql, values);
-};
 
-// UPDATE
-async function UpdateCustomers() {
-    const conn = await connect();
-    const sql = 'UPDATE clientes SET VALUES nome = ?, idade = ?, uf = ? WHERE id = ?';
-    const values = [customer.nome, customer.idade, customer.uf, id];
-    return await conn.query(sql, values);
-};
-
-// DELETE
-async function DeleteCustomers() {
-    const conn = await connect();
-    const sql = 'DELETE FROM clientes WHERE id = ?';
-    const values = [customer.nome, customer.idade, customer.uf, id];
-    return await conn.query(sql, values);
-};
-
-module.exports = { selectCustomers, InsertCustomers, UpdateCustomers, DeleteCustomers };
+module.exports = { selectEspecifico };
